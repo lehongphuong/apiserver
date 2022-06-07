@@ -1,11 +1,14 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 var app = express();
+app.use(cors())
 app.use(bodyParser.json());
 // Setting for Hyperledger Fabric
 const { Gateway,Wallets } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
+const httpStatus = require('http-status');
 //const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
   //      const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
@@ -40,7 +43,7 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
         // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
         // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
         const result = await contract.evaluateTransaction('queryAllCars');
-	console.log(JSON.parse(result)[0]["Record"]);
+        console.log(JSON.parse(result)[0]["Record"]);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
 } catch (error) {
@@ -123,7 +126,7 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
         await contract.submitTransaction('createCar', req.body.carid, req.body.make, req.body.model, req.body.colour, req.body.owner);
         console.log('Transaction has been submitted');
-        res.send('Transaction has been submitted');
+        res.status(httpStatus.CREATED).send({"result":"Transaction has been submitted"});
 // Disconnect from the gateway.
         await gateway.disconnect();
 } catch (error) {
@@ -164,7 +167,7 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
         await contract.submitTransaction('changeCarOwner', req.params.car_index, req.body.owner);
         console.log('Transaction has been submitted');
-        res.send('Transaction has been submitted');
+        res.status(httpStatus.CREATED).send({"status":"OK"});
 // Disconnect from the gateway.
         await gateway.disconnect();
 } catch (error) {
